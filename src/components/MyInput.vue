@@ -8,32 +8,34 @@
     hide-details
     prepend-icon="mdi-send"
     @click:prepend="prependIconCallback"
+    v-on:keyup.enter="prependIconCallback"
     mouseup
     @input="writing"
   >
   </v-text-field>
-
-  <!-- <IconSend /> -->
 </template>
 
 <script>
-import IconSend from "./IconSend";
-
 export default {
   name: "MyInput",
-  components: { IconSend },
   props: ["messages", "write"],
   data() {
-    return { value: "" };
+    return { value: "", timer: null };
   },
   methods: {
     prependIconCallback() {
-      this.messages.splice(0, 0, { msg: this.value });
+      this.messages.splice(0, 0, { msg: this.value, id: this.messages.length });
       this.value = "";
     },
     writing() {
-      console.log(this.write);
-      this.write = true;
+      this.$emit("isWriting", true);
+      this.onAfterInput();
+    },
+    onAfterInput() {
+      clearTimeout(this.timer);
+      this.timer = setTimeout(() => {
+        this.$emit("isWriting", false);
+      }, 500);
     },
   },
 };
